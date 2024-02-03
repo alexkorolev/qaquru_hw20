@@ -1,14 +1,47 @@
 plugins {
-    id 'java'
+    id 'java-library'
+    id 'io.qameta.allure' version '2.11.2'
+    id "io.freefair.lombok" version "6.0.0-m2"
 }
-
-group 'qaguru_hw20'
-version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
 }
 
+def restAssuredVersion = "5.3.1",
+    allureVersion = "2.21.0"
+
+allure {
+    report {
+        version.set(allureVersion)
+    }
+    adapter {
+        aspectjWeaver.set(true)
+        frameworks {
+            junit5 {
+                adapterVersion.set(allureVersion)
+            }
+        }
+    }
+}
+
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation(
+            "io.rest-assured:rest-assured:$restAssuredVersion",
+            "io.rest-assured:json-schema-validator:$restAssuredVersion",
+            "io.qameta.allure:allure-rest-assured:$allureVersion",
+            "org.junit.jupiter:junit-jupiter:5.10.0",
+            'org.slf4j:slf4j-simple:2.0.7'
+    )
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+
+    testLogging {
+        lifecycle {
+            events "started", "skipped", "failed", "standard_error", "standard_out"
+            exceptionFormat "short"
+        }
+    }
 }
